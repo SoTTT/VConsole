@@ -1,0 +1,42 @@
+﻿using Microsoft.Extensions.Logging;
+using PuppeteerSharp;
+using PuppeteerSharp.Contrib.PageObjects;
+using VConsole.Util;
+using PageExtensions = PuppeteerSharp.Contrib.PageObjects.PageExtensions;
+
+namespace VConsole.PageObject;
+
+public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
+{
+    [Selector("#adultwarningprompt input[value=\"我同意\"][type=\"button\"]")]
+    public virtual Task<IElementHandle?> OkButton { get; }
+
+    [Selector("#adultwarningprompt")]
+    public virtual Task<IElementHandle?> WarningPrompt { get; }
+
+    [Selector("div.menutext a")]
+    public virtual Task<IElementHandle[]> UserMenuActions { get; }
+
+    public async Task<UserPage> GoToUserPage()
+    {
+        var warningPrompt = await WarningPrompt;
+        if (warningPrompt != null)
+        {
+            var button = await OkButton;
+            if (button != null)
+            {
+                await button.ClickAsync();
+            }
+        }
+
+        var userMenuActions = await UserMenuActions;
+        if (userMenuActions.Length != 3)
+        {
+            throw new Exception("page state is no login");
+        }
+
+        await userMenuActions[0].ClickAsync();
+
+        return await Page.WaitForNavigationAsync<UserPage>();
+    }
+}
