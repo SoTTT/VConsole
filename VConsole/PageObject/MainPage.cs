@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using PuppeteerSharp;
+using PuppeteerSharp.Contrib.Extensions;
 using PuppeteerSharp.Contrib.PageObjects;
+using PuppeteerSharp.Input;
 using VConsole.Util;
 using PageExtensions = PuppeteerSharp.Contrib.PageObjects.PageExtensions;
 
@@ -16,6 +18,12 @@ public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
 
     [Selector("div.menutext a")]
     public virtual Task<IElementHandle[]> UserMenuActions { get; }
+
+    [Selector("form[name=\"searchbar\"] input[type=\"text\"]")]
+    public virtual Task<IElementHandle> SearchInput { get; }
+
+    [Selector("form[name=\"searchbar\"] input[type=\"button\"]")]
+    public virtual Task<IElementHandle> SearchButton { get; }
 
     public async Task<UserPage> GoToUserPage()
     {
@@ -38,5 +46,12 @@ public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
         await userMenuActions[0].ClickAsync();
 
         return await Page.WaitForNavigationAsync<UserPage>();
+    }
+
+    public async Task<VideoDetailPage> SearchVideo(string code)
+    {
+        await (await SearchInput).TypeAsync(code);
+        await (await SearchButton).ClickAsync();
+        return await Page.WaitForNavigationAsync<VideoDetailPage>();
     }
 }
