@@ -26,13 +26,13 @@ public class VideoDetailPage : PuppeteerSharp.Contrib.PageObjects.PageObject
     public async Task<VideoDetailRecord> GetVideoDetail()
     {
         return new VideoDetailRecord(
-            await (await VideoIdElement).InnerTextAsync(),
-            DateOnly.ParseExact(await (await VideoReleaseDateElement).InnerTextAsync(), "yyyy-MM-dd",
+            VideoId: await (await VideoIdElement).InnerTextAsync(),
+            VideoReleaseDate: DateOnly.ParseExact(await (await VideoReleaseDateElement).InnerTextAsync(), "yyyy-MM-dd",
                 CultureInfo.InvariantCulture
             ),
-            await (await VideoTimeSpanElement).InnerTextAsync(),
-            (await VideoGenresElement).Select(element => element.InnerTextAsync().Result).ToList(),
-            await (await VideoActorElement).InnerTextAsync()
+            VideoTimeSpan: await (await VideoTimeSpanElement).InnerTextAsync(),
+            VideoGenres: (await VideoGenresElement).Select(element => element.InnerTextAsync().Result).ToList(),
+            VideoActor: await (await VideoActorElement).InnerTextAsync()
         );
     }
 }

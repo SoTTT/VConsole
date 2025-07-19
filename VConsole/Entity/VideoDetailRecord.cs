@@ -5,4 +5,5 @@ public record VideoDetailRecord(
     DateOnly VideoReleaseDate,
     string VideoTimeSpan,
     IList<string> VideoGenres,
-    string VideoActor);
+    string VideoActor,
+    string Description = "");
