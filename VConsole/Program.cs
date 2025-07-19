@@ -9,7 +9,7 @@ using VConsole.Util;
 
 TaskCompletionSource<bool> closed = new TaskCompletionSource<bool>();
 
-await new BrowserFetcher().DownloadAsync();
+// await new BrowserFetcher().DownloadAsync();
 
 var extra = new PuppeteerExtra();
 
@@ -25,13 +25,14 @@ var browser = await extra.LaunchAsync(new LaunchOptions
         Width = 1920,
         Height = 1080
     },
+    ExecutablePath = ConfigurationUtil.Configuration["GoogleChromeExecutePath"]!
 });
 
 browser.Closed += (sender, events) => { closed.TrySetResult(true); };
 
 var page = await browser.NewPageAsync();
 
-MainPage mainPage = await page.GoToAsync<MainPage>("https://www.x92g.com/cn");
+MainPage mainPage = await page.GoToAsync<MainPage>(ConfigurationUtil.Configuration["UrlBase:JavLibrary"]!);
 UserPage userPage = await mainPage.GoToUserPage();
 UserWantToPage userWantToPage = await userPage.GoToUserWantToPage();
 

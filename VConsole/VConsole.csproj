@@ -9,6 +9,7 @@
 
     <ItemGroup>
       <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.7" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
       <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
@@ -17,6 +18,12 @@
       <PackageReference Include="PuppeteerSharp.Contrib.Extensions" Version="6.0.0" />
       <PackageReference Include="PuppeteerSharp.Contrib.PageObjects" Version="6.0.0" />
       <PackageReference Include="PuppeteerSharp.Contrib.Should" Version="6.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>
