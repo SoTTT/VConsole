@@ -1,10 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using PuppeteerSharp;
-using PuppeteerSharp.Contrib.Extensions;
+﻿using PuppeteerSharp;
 using PuppeteerSharp.Contrib.PageObjects;
-using PuppeteerSharp.Input;
-using VConsole.Util;
-using PageExtensions = PuppeteerSharp.Contrib.PageObjects.PageExtensions;
 
 namespace VConsole.PageObject;
 
@@ -25,8 +20,7 @@ public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
 
     public async Task<UserPage> GoToUserPage()
     {
-        await AutoSkipWarningPrompt();
-        if (await IsLogin())
+        if (!await IsLogin())
         {
             throw new Exception("page state is no login");
         }
