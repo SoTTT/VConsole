@@ -23,8 +23,6 @@ public class BrowserHostedService(
 
     private IBrowser _browser = null!;
 
-    private readonly IHostApplicationLifetime _applicationLifetime = applicationLifetime;
-
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var extra = new PuppeteerExtra();
@@ -64,7 +62,7 @@ public class BrowserHostedService(
             _browser.Closed += (sender, events) =>
             {
                 _closed.TrySetResult(true);
-                _applicationLifetime.StopApplication();
+                applicationLifetime.StopApplication();
             };
         }
 
