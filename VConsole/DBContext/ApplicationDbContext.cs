@@ -1,18 +1,22 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using VConsole.Entity;
 using VConsole.Util;
 
 namespace VConsole.DBContext;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
+    : DbContext(options)
 {
+    private readonly IConfiguration _configuration = configuration;
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
             optionsBuilder.UseSqlite(
-                $"Data Source={ConfigurationUtil.Configuration["DBPath"]!}"
+                $"Data Source={_configuration["DBPath"]!}"
             );
         }
     }
