@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PuppeteerExtraSharp;
@@ -7,6 +8,7 @@ using PuppeteerExtraSharp.Plugins.ExtraStealth;
 using PuppeteerSharp;
 using PuppeteerSharp.Contrib.PageObjects;
 using VConsole.DBContext;
+using VConsole.Entity;
 using VConsole.PageObject;
 using VConsole.Util;
 
@@ -15,13 +17,17 @@ namespace VConsole.Services;
 public class BrowserHostedService(
     IConfiguration configuration,
     ILogger<BrowserHostedService> logger,
-    ApplicationDbContext applicationDbContext,
-    IHostApplicationLifetime applicationLifetime)
+    IHostApplicationLifetime applicationLifetime,
+    IServiceProvider serviceProvider)
     : IHostedService
 {
     private readonly TaskCompletionSource<bool> _closed = new();
 
     private IBrowser _browser = null!;
+
+    private IPage _page = null!;
+
+    private readonly TaskCompletionSource<bool> _initializationCompleted = new();
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
@@ -58,26 +64,19 @@ public class BrowserHostedService(
                 DefaultViewport = null,
                 ExecutablePath = configuration["GoogleChromeExecutePath"]!
             });
-
-            _browser.Closed += (sender, events) =>
-            {
-                _closed.TrySetResult(true);
-                applicationLifetime.StopApplication();
-            };
         }
+        
+        _browser.Closed += (sender, events) =>
+        {
+            _closed.TrySetResult(true);
+            applicationLifetime.StopApplication();
+        };
 
         logger.LogInformation("browser connected");
 
-        var page = await _browser.NewPageAsync();
+        _page = await _browser.NewPageAsync();
 
-        MainPage mainPage = await page.GoToAsync<MainPage>(configuration["UrlBase:JavLibrary"]!);
-        mainPage = await mainPage.AutoSkipWarningPrompt();
-
-
-        await applicationDbContext.VideoDetailRecords
-            .Where(p => p.VideoId == "MIDA-241")
-            .ExecuteDeleteAsync(cancellationToken: cancellationToken);
-        await applicationDbContext.SaveChangesAsync(cancellationToken);
+        _initializationCompleted.SetResult(true);
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
@@ -85,5 +84,33 @@ public class BrowserHostedService(
         logger.LogInformation("wait for browser closed...");
         await _closed.Task;
         logger.LogInformation("browser closed");
+    }
+
+    public async Task GetVideoDetail(string videoId)
+    {
+        MainPage mainPage = await _page.GoToAsync<MainPage>(configuration["UrlBase:JavLibrary"]!);
+        mainPage = await mainPage.AutoSkipWarningPrompt();
+
+        VideoDetailPage videoDetailPage = await mainPage.SearchVideo(videoId);
+
+        VideoDetailRecord entity = await videoDetailPage.GetVideoDetail();
+
+        using var scope = serviceProvider.CreateScope();
+        
+        var applicationDbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await applicationDbContext.VideoDetailRecords.AddAsync(entity);
+
+        await applicationDbContext.SaveChangesAsync();
+    }
+
+    public async Task WaitForServiceInitializationCompleted()
+    {
+        if (_initializationCompleted.Task.IsCompleted)
+        {
+            return;
+        }
+
+        await _initializationCompleted.Task;
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 [Table(name: "VideoDetailRecords")]
+[Index(nameof(VideoId), IsUnique = true)]
 public class VideoDetailRecord
 {
     [Key] public int Id { get; set; }

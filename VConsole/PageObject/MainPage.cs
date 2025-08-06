@@ -1,4 +1,5 @@
 ﻿using PuppeteerSharp;
+using PuppeteerSharp.Contrib.Extensions;
 using PuppeteerSharp.Contrib.PageObjects;
 
 namespace VConsole.PageObject;
@@ -8,7 +9,7 @@ public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
     [Selector("#adultwarningprompt input[value=\"我同意\"][type=\"button\"]")]
     public virtual Task<IElementHandle?> OkButton { get; }
 
-    [Selector("#adultwarningprompt")] public virtual Task<IElementHandle?> WarningPrompt { get; }
+    [Selector("#adultwarningmask")] public virtual Task<IElementHandle?> WarningPrompt { get; }
 
     [Selector("div.menutext a")] public virtual Task<IElementHandle[]> UserMenuActions { get; }
 
@@ -36,7 +37,8 @@ public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
         var warningPrompt = await WarningPrompt;
         if (warningPrompt == null) return this;
         var button = await OkButton;
-        if (button != null)
+        string style = (await warningPrompt.GetAttributeAsync("style"));
+        if (button != null && !style.Contains("none"))
         {
             await button.ClickAsync();
         }
@@ -48,7 +50,10 @@ public class MainPage : PuppeteerSharp.Contrib.PageObjects.PageObject
     {
         await (await SearchInput).TypeAsync(code);
         await (await SearchButton).ClickAsync();
-        return await Page.WaitForNavigationAsync<VideoDetailPage>();
+        return await Page.WaitForNavigationAsync<VideoDetailPage>(new NavigationOptions
+        {
+            Timeout = 0
+        });
     }
 
     public async Task<bool> IsLogin()

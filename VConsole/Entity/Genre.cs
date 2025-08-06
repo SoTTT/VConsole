@@ -8,5 +8,5 @@ public class Genre
     public string TagName { get; set; }
 
     public int VideoDetailRecordId { get; set; }
-    public VideoDetailRecord VideoDetailRecord { get; set; }
+    public List<VideoDetailRecord> VideoDetailRecord { get; set; }
 }

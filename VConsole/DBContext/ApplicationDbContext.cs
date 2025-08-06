@@ -27,13 +27,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         modelBuilder.Entity<VideoDetailRecord>()
             .HasMany(v => v.VideoGenres)
-            .WithOne(g => g.VideoDetailRecord)
-            .HasForeignKey(g => g.VideoDetailRecordId);
+            .WithMany(g => g.VideoDetailRecord);
 
         modelBuilder.Entity<VideoDetailRecord>()
             .HasMany(v => v.VideoActor)
-            .WithOne(a => a.VideoDetailRecord)
-            .HasForeignKey(a => a.VideoDetailRecordId);
+            .WithMany(a => a.VideoDetailRecord);
     }
 
     // 添加 VideoDetailRecord 的 DbSet

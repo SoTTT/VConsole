@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace VConsole.Entity;
 
@@ -9,5 +10,5 @@ public class Actor
     public string Name { get; set; } = "";
 
     public int VideoDetailRecordId { get; set; }
-    public VideoDetailRecord VideoDetailRecord { get; set; }
+    public List<VideoDetailRecord> VideoDetailRecord { get; set; }
 }
